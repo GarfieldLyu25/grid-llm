@@ -1,0 +1,113 @@
+# Grid-LLM 全局配置
+# 所有大文件路径指向数据盘（AutoDL / Linux 默认 /root/autodl-tmp/）
+# 本地跑改成 "./" 即可
+
+# 数据盘根目录（AutoDL: /root/autodl-tmp/，本地: ./）
+base_dir: "/root/autodl-tmp/grid-llm"
+
+# 基座模型
+model:
+  name: "Qwen/Qwen2.5-7B-Instruct"
+  # 如果 AutoDL 已预装 Qwen，改这里:
+  # local_path: "/root/autodl-tmp/models/Qwen2.5-7B-Instruct"
+  trust_remote_code: true
+  torch_dtype: "bfloat16"
+
+# 数据
+data:
+  raw_dir: "{base_dir}/data/raw"
+  train_file: "{base_dir}/data/train.jsonl"
+  eval_file: "{base_dir}/data/eval.jsonl"
+  grpo_eval_file: "{base_dir}/data/grpo_eval.jsonl"
+  # 数据集（HuggingFace 路径，AutoDL 上可能已缓存）
+  datasets:
+    - "xuefeng/ape210k"       # 21万条中文数学应用题
+    - "TIGER-Lab/CMATH"       # 中文数学竞赛题
+  # train / eval 划分
+  eval_ratio: 0.1
+  grpo_eval_size: 500
+  min_samples: 5000
+
+# Stage 1: QLoRA SFT
+sft:
+  output_dir: "{base_dir}/stage1_sft/output"
+  lora_adapter_dir: "{base_dir}/stage1_sft/output/lora_adapter"
+  merged_dir: "{base_dir}/stage1_sft/output/sft_merged"
+  # QLoRA
+  quantization:
+    load_in_4bit: true
+    bnb_4bit_compute_dtype: "bfloat16"
+    bnb_4bit_use_double_quant: true
+    bnb_4bit_quant_type: "nf4"
+  # LoRA
+  lora:
+    r: 64
+    alpha: 128
+    dropout: 0.05
+    target_modules:
+      - "q_proj"
+      - "k_proj"
+      - "v_proj"
+      - "o_proj"
+      - "gate_proj"
+      - "up_proj"
+      - "down_proj"
+  # 训练超参
+  training:
+    per_device_train_batch_size: 4
+    per_device_eval_batch_size: 4
+    gradient_accumulation_steps: 4
+    learning_rate: 1.0e-4
+    num_epochs: 3
+    max_seq_length: 1024
+    warmup_ratio: 0.1
+    lr_scheduler_type: "cosine"
+    logging_steps: 10
+    save_steps: 200
+    save_total_limit: 3
+    bf16: true
+    optim: "adamw_8bit"
+    seed: 42
+
+# Stage 2: GRPO
+grpo:
+  output_dir: "{base_dir}/stage2_grpo/output"
+  model_dir: "{base_dir}/stage2_grpo/output/grpo_model"
+  reward:
+    correct_answer_score: 1.0
+    wrong_answer_score: 0.0
+    reasoning_bonus: 0.1
+    max_score: 1.0
+  training:
+    num_generations: 4
+    max_prompt_length: 512
+    max_completion_length: 512
+    per_device_train_batch_size: 2
+    gradient_accumulation_steps: 4
+    learning_rate: 5.0e-6
+    num_train_epochs: 1
+    beta: 0.04
+    logging_steps: 5
+    save_steps: 100
+    bf16: true
+    seed: 42
+
+# Stage 3: AWQ
+awq:
+  output_dir: "{base_dir}/stage3_awq/output"
+  quantized_dir: "{base_dir}/stage3_awq/output/model-awq-4bit"
+  bits: 4
+  group_size: 128
+  zero_point: true
+  calib_size: 128
+
+# Stage 4: vLLM
+vllm:
+  host: "0.0.0.0"
+  port: 8000
+  max_model_len: 2048
+  gpu_memory_utilization: 0.90
+  dtype: "float16"
+  benchmark:
+    num_prompts: 100
+    concurrency: [1, 4, 8, 16]

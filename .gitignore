@@ -1,0 +1,22 @@
+# IDE
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temp files
+*.tmp
+*.bak
+
+# Python + uv
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+uv.lock
+
+
+# Note (personal)
+note/
+.claude
