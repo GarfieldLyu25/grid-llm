@@ -4,7 +4,7 @@
 在 eval 集上跑 math_eval，对比准确率。
 
 用法:
-  uv run python stage3_awq/eval_compare.py
+  uv run python src/grid_llm/stage3_awq/eval_compare.py
 """
 
 import json
@@ -92,7 +92,7 @@ def main():
     logger.info("--- 评估 GRPO 原始模型 ---")
     from transformers import AutoModelForCausalLM, AutoTokenizer
 
-    grpo_path = config["grpo"]["model_dir"]
+    grpo_path = config["grpo"].get("merged_dir") or config["grpo"]["model_dir"]
     grpo_model = AutoModelForCausalLM.from_pretrained(
         grpo_path,
         torch_dtype=torch.bfloat16,

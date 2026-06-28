@@ -6,7 +6,7 @@ AutoDL 适配：
 - 数据集保存到数据盘
 
 用法:
-  uv run python data/download.py
+  uv run python src/grid_llm/data/download.py
 """
 
 import json

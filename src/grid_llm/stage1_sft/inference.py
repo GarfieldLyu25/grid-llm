@@ -1,8 +1,8 @@
 """SFT 模型推理验证：加载合并模型，跑示例推理。
 
 用法:
-  uv run python stage1_sft/inference.py                        # 默认示例
-  uv run python stage1_sft/inference.py --prompt "你的题目"     # 自定义题目
+  uv run python src/grid_llm/stage1_sft/inference.py                        # 默认示例
+  uv run python src/grid_llm/stage1_sft/inference.py --prompt "你的题目"     # 自定义题目
 """
 
 import sys

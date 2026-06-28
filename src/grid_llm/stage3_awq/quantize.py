@@ -45,7 +45,7 @@ def quantize_with_autoawq(config: dict):
     from transformers import AutoTokenizer
 
     awq_cfg = config["awq"]
-    model_path = config["grpo"]["model_dir"]
+    model_path = config["grpo"].get("merged_dir") or config["grpo"]["model_dir"]
     quant_path = awq_cfg["quantized_dir"]
 
     logger.info(f"加载 GRPO 模型: {model_path}")

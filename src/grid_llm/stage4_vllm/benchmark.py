@@ -163,7 +163,7 @@ def main():
     if not args.skip_transformers:
         logger.info("=" * 40)
         logger.info("压测 Transformers 基线 (GRPO FP16)")
-        model_path = config["grpo"]["model_dir"]
+        model_path = config["grpo"].get("merged_dir") or config["grpo"]["model_dir"]
         if not Path(model_path).exists():
             logger.warning(f"GRPO 模型不存在: {model_path}，回退 SFT")
             model_path = config["sft"]["merged_dir"]

@@ -8,6 +8,8 @@ base_dir: "/root/autodl-tmp/grid-llm"
 # 基座模型
 model:
   name: "Qwen/Qwen2.5-7B-Instruct"
+  # 7B GRPO 如果 5090 32GB 爆显存，切到 2B 先跑通全流程:
+  # name: "Qwen/Qwen2.5-2B-Instruct"
   # 如果 AutoDL 已预装 Qwen，改这里:
   # local_path: "/root/autodl-tmp/models/Qwen2.5-7B-Instruct"
   trust_remote_code: true
@@ -72,17 +74,21 @@ sft:
 # Stage 2: GRPO
 grpo:
   output_dir: "{base_dir}/stage2_grpo/output"
-  model_dir: "{base_dir}/stage2_grpo/output/grpo_model"
+  adapter_dir: "{base_dir}/stage2_grpo/output/grpo_lora_adapter"
+  merged_dir: "{base_dir}/stage2_grpo/output/grpo_merged"
+  # 兼容旧字段：下游脚本优先读取 merged_dir，缺失时回退 model_dir
+  model_dir: "{base_dir}/stage2_grpo/output/grpo_merged"
   reward:
-    correct_answer_score: 1.0
-    wrong_answer_score: 0.0
-    reasoning_bonus: 0.1
-    max_score: 1.0
+    # DeepSeek API 裁判（评判答案正确性 + 推理质量 + 格式）
+    judge_api_key: ""
+    judge_model: "deepseek-chat"
+    judge_timeout: 30
   training:
-    num_generations: 4
-    max_prompt_length: 512
-    max_completion_length: 512
-    per_device_train_batch_size: 2
+    # 7B + 5090 32GB 的保守默认值；显存稳定后可把 num_generations 调回 4
+    num_generations: 2
+    max_prompt_length: 384
+    max_completion_length: 256
+    per_device_train_batch_size: 1
     gradient_accumulation_steps: 4
     learning_rate: 5.0e-6
     num_train_epochs: 1

@@ -36,7 +36,7 @@ def generate(model, tokenizer, prompt: str, max_new_tokens: int = 512) -> str:
 def main():
     config = load_config()
     sft_path = config["sft"]["merged_dir"]
-    grpo_path = config["grpo"]["model_dir"]
+    grpo_path = config["grpo"].get("merged_dir") or config["grpo"]["model_dir"]
 
     prompt = "鸡兔同笼，头有 35 个，脚有 94 只，鸡和兔各有多少只？"
     for i, arg in enumerate(sys.argv):

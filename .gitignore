@@ -9,12 +9,33 @@ Thumbs.db
 *.tmp
 *.bak
 
+# Secrets / local overrides
+config/config.local.yaml
+config/*secret*.yaml
+config/*private*.yaml
+
+# Logs / caches
+logs/
+.cache/
+.mypy_cache/
+.ruff_cache/
+
 # Python + uv
 .venv/
 __pycache__/
 *.pyc
 *.pyo
 uv.lock
+
+# Training data and model artifacts
+data/raw/
+data/*.jsonl
+stage1_sft/output/
+stage2_grpo/output/
+stage3_awq/output/
+benchmarks/
+/outputs/
+/models/
 
 
 # Note (personal)

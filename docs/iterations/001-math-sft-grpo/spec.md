@@ -14,7 +14,7 @@
 
 - F1: 数学数据集构建 — 下载开源中文数学数据集（ape210k / CMATH），统一格式化，划分 train/eval/grpo_eval
 - F2: QLoRA SFT 微调 — 基于 Qwen2.5-7B-Instruct，4-bit NF4 + LoRA 增量训练
-- F3: GRPO 数学推理增强 — 奖励函数 = 答案正确性，组内相对优势估计，移除 Critic
+- F3: GRPO 数学推理增强 — 使用 DeepSeek API 作为裁判型奖励模型，按答案正确性、推理质量、格式规范给 0~1 分；训练仍采用 LoRA 增量更新，组内相对优势估计，移除 Critic
 - F4: AWQ INT4 量化 — 量化前后精度对比，验证损失可接受
 - F5: vLLM 高性能部署 — PagedAttention + 连续批处理，吞吐压测对比
 - F6: 全流程可复现 — 每阶段产出独立保存，`run_all.sh` 一键执行
@@ -39,9 +39,9 @@
 
 | 编号 | 验收项 | 验证方式 |
 |------|--------|---------|
-| AC1 | 数据集 ≥ 5000 条，train/eval 比例 9:1 | `python data/preprocess.py --stats` |
+| AC1 | 数据集 ≥ 5000 条，train/eval 比例 9:1 | `uv run python src/grid_llm/data/preprocess.py && uv run python src/grid_llm/data/stats.py` |
 | AC2 | SFT 后 eval loss 收敛，模型按推理格式输出 | tensorboard |
-| AC3 | GRPO 后 math eval ≥ SFT 基线，reward 上升 | `python eval/math_eval.py` |
-| AC4 | AWQ INT4 后准确率下降 ≤ 3% | 同上脚本对比 |
-| AC5 | vLLM 吞吐 ≥ 2x 原生 Transformers | `python benchmark/throughput.py` |
+| AC3 | GRPO LoRA 后 math eval ≥ SFT 基线，API 裁判 reward 上升 | `uv run python src/grid_llm/eval/math_eval.py` |
+| AC4 | AWQ INT4 后准确率下降 ≤ 3% | `uv run python src/grid_llm/stage3_awq/eval_compare.py` |
+| AC5 | vLLM 吞吐 ≥ 2x 原生 Transformers | `uv run python src/grid_llm/stage4_vllm/benchmark.py` |
 | AC6 | `run_all.sh` 一键执行，中断后 checkpoint 续跑 | 手动测试 |

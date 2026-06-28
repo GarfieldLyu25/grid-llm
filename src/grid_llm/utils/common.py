@@ -11,6 +11,9 @@ from datetime import datetime
 
 import yaml
 
+DEFAULT_CONFIG_PATH = Path("config/config.yaml")
+LOCAL_CONFIG_PATH = Path("config/config.local.yaml")
+
 
 # ---- 日志（控制台 + 文件双写） ----
 
@@ -72,6 +75,11 @@ def timer(description: str, logger: logging.Logger | None = None):
 
 # ---- 配置加载 ----
 
+def default_config_path() -> Path:
+    """返回默认配置路径：本地配置优先，仓库模板兜底。"""
+    return LOCAL_CONFIG_PATH if LOCAL_CONFIG_PATH.exists() else DEFAULT_CONFIG_PATH
+
+
 def _resolve_path(value: str, base_dir: str) -> str:
     """替换路径中的 {base_dir} 占位符。"""
     return value.replace("{base_dir}", base_dir)
@@ -88,9 +96,15 @@ def _resolve_config(obj, base_dir: str):
     return obj
 
 
-def load_config(config_path: str = "config/config.yaml") -> dict:
-    """加载 YAML 配置文件，自动解析 {base_dir} 占位符。"""
-    with open(config_path, "r", encoding="utf-8") as f:
+def load_config(config_path: str | None = None) -> dict:
+    """加载 YAML 配置文件，自动解析 {base_dir} 占位符。
+
+    默认优先读取 config/config.local.yaml；如果不存在，再读取
+    config/config.yaml。前者用于本机真实运行，后者作为仓库模板。
+    """
+    path = Path(config_path) if config_path else default_config_path()
+
+    with open(path, "r", encoding="utf-8") as f:
         raw = yaml.safe_load(f)
     base_dir = raw.get("base_dir", "./").rstrip("/")
     if not Path(base_dir).is_absolute():

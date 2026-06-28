@@ -2,8 +2,8 @@
 # Stage 4: vLLM 部署 — 启动 AWQ 量化模型的 OpenAI 兼容 API 服务
 #
 # 用法:
-#   bash stage4_vllm/serve.sh          # 启动服务
-#   bash stage4_vllm/serve.sh --bench  # 启动后再跑压测
+#   bash src/grid_llm/stage4_vllm/serve.sh          # 启动服务
+#   bash src/grid_llm/stage4_vllm/serve.sh --bench  # 启动后再跑压测
 #
 # 服务地址: http://localhost:8000
 # API 文档: http://localhost:8000/docs
@@ -18,7 +18,7 @@ HOST="0.0.0.0"
 # 检查模型是否存在
 if [ ! -d "$MODEL_PATH" ]; then
     echo "❌ 量化模型不存在: $MODEL_PATH"
-    echo "   请先运行: uv run python stage3_awq/quantize.py"
+    echo "   请先运行: uv run python src/grid_llm/stage3_awq/quantize.py"
     exit 1
 fi
 
@@ -58,7 +58,7 @@ done
 if [ "${1:-}" = "--bench" ]; then
     echo ""
     echo "  开始压测 ..."
-    uv run python stage4_vllm/benchmark.py
+    uv run python src/grid_llm/stage4_vllm/benchmark.py
 fi
 
 echo ""

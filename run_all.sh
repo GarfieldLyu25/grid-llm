@@ -76,7 +76,7 @@ log_step $STEP "GRPO 奖励函数测试"
 uv run python "$SRC/stage2_grpo/reward.py" --test || log_err "奖励函数测试失败"
 
 # ---- Step 6: GRPO 训练 ----
-STEP=6; OUT=$(cfg_val "['grpo']['model_dir']")/config.json
+STEP=6; OUT=$(cfg_val "['grpo']['merged_dir']")/config.json
 if [ -f "$OUT" ]; then log_skip "GRPO 模型"
 else
     log_step $STEP "GRPO 对齐训练 (~4h)"
@@ -87,7 +87,7 @@ fi
 STEP=7
 log_step $STEP "SFT vs GRPO 准确率对比"
 uv run python "$SRC/eval/math_eval.py" --model "$(cfg_val "['sft']['merged_dir']")" --max 100
-uv run python "$SRC/eval/math_eval.py" --model "$(cfg_val "['grpo']['model_dir']")" --max 100
+uv run python "$SRC/eval/math_eval.py" --model "$(cfg_val "['grpo']['merged_dir']")" --max 100
 
 # ---- Step 8: AWQ 量化 ----
 STEP=8; OUT=$(cfg_val "['awq']['quantized_dir']")/config.json

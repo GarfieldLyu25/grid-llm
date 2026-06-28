@@ -48,7 +48,7 @@ spec.md → plan.md → task.md → checklist.md → 开发 → 验收
 
 ## 项目技术约定
 
-- **框架语言**：Python 3.11+
+- **框架语言**：Python 3.12（AutoDL 镜像：PyTorch 2.8 / CUDA 12.8 / Ubuntu 22.04）
 - **包管理器**：uv（`uv sync` 创建隔离环境，`uv run python` 执行脚本，不污染系统 Python）
 - **代码路径**：所有 Python 代码在 `src/grid_llm/` 下，包名为 `grid_llm`
 - **模型**：Qwen2.5-7B-Instruct
@@ -64,7 +64,7 @@ spec.md → plan.md → task.md → checklist.md → 开发 → 验收
 ## 代码风格
 
 - 遵循 mew-spec 核心原则：spec 聚焦行为描述，plan 定义接口，task 写具体步骤
-- 所有脚本独立可运行，参数通过 config.yaml 和命令行传入
-- 每阶段产出物（adapter / 合并模型 / 量化模型）独立保存，路径写进 config.yaml
+- 所有脚本独立可运行，参数通过配置文件和命令行传入；默认优先读取 `config/config.local.yaml`，不存在时读取 `config/config.yaml`
+- 每阶段产出物（adapter / 合并模型 / 量化模型）独立保存，路径写进配置文件
 - 训练脚本带 checkpoint 续训逻辑
 - 评估脚本输出可对比的指标（准确率、loss、吞吐）
